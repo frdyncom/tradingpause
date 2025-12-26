@@ -12,19 +12,12 @@
 <meta property="og:type" content="website">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --max: clamp(320px, 92vw, 1200px);
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Inter',sans-serif;
-}
+:root{--max:clamp(320px,92vw,1200px)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
 
 body{
   background:#050505;
@@ -32,14 +25,28 @@ body{
   overflow-x:hidden;
 }
 
-/* ===== RAIN ===== */
+/* rain */
 canvas{
   position:fixed;
   inset:0;
   z-index:0;
 }
 
-/* ===== INTRO ===== */
+/* tap overlay */
+#tapToStart{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  color:#aaa;
+  cursor:pointer;
+}
+
+/* intro */
 #intro{
   position:fixed;
   inset:0;
@@ -48,8 +55,7 @@ canvas{
   display:flex;
   align-items:center;
   justify-content:center;
-  animation:hideIntro 1s ease forwards;
-  animation-delay:6s;
+  transition:opacity 1s ease;
 }
 
 #intro video{
@@ -58,20 +64,24 @@ canvas{
   object-fit:cover;
   filter:brightness(.4) blur(1px);
 }
-
 #introText{
   position:absolute;
+  z-index:2;
   text-align:center;
   font-size:clamp(16px,3vw,22px);
+  line-height:1.5;
+  color:#e6e6e6;
   opacity:0;
   animation:fadeText 2s ease forwards;
   animation-delay:1.5s;
+  pointer-events:none; /* PENTING */
 }
 
-@keyframes fadeText{to{opacity:1}}
-@keyframes hideIntro{to{opacity:0;pointer-events:none}}
+@keyframes fadeText{
+  to{opacity:1}
+}
 
-/* ===== CONTENT ===== */
+/* content */
 .wrapper{
   position:relative;
   z-index:2;
@@ -96,10 +106,7 @@ h1{
   margin-bottom:15px;
 }
 
-h1 span{
-  color:#777;
-  font-weight:300;
-}
+h1 span{color:#777;font-weight:300}
 
 .subtitle{
   font-size:clamp(14px,2vw,16px);
@@ -113,77 +120,71 @@ h1 span{
   margin-bottom:70px;
 }
 
-/* ===== HORIZONTAL GALLERY FULL CARD ===== */
-
+/* gallery */
 .gallery-wrap{
-  width:100%;
   overflow-x:auto;
   scroll-snap-type:x mandatory;
-  padding-bottom:20px;
 }
-
 .gallery{
   display:flex;
   gap:16px;
   width:max-content;
   padding:0 8px;
 }
-
-/* CARD FULL (NO CROP) */
 .gallery img{
-  width:clamp(220px, 70vw, 360px);   /* LEBAR CARD */
-  height:clamp(380px, 85vh, 520px);  /* TINGGI FULL */
-  object-fit:contain;                /* PENTING: BIAR GA CROP */
+  width:clamp(220px,70vw,360px);
+  height:clamp(380px,85vh,520px);
+  object-fit:contain;
   background:#000;
   border-radius:16px;
   border:1px solid #222;
   scroll-snap-align:start;
 }
 
-/* ===== FOOTER ===== */
+/* testimonial */
+.testimonial-card{
+  background:#0a0a0a;
+  border-left:3px solid #ff5c5c;
+  border-radius:10px;
+  max-width:500px;
+  margin:40px auto;
+  padding:20px 25px;
+  line-height:1.6;
+}
+.author{
+  text-align:right;
+  font-size:13px;
+  color:#888;
+  margin-top:10px;
+}
+
 footer{
   margin-top:90px;
   font-size:12px;
   color:#666;
 }
-
-/* ===== ULTRA WIDE ===== */
-@media(min-width:1600px){
-  body{
-    background:radial-gradient(circle at center,#0b0b0b,#050505 70%);
-  }
-}
 </style>
 </head>
 
 <body>
-<!--AUDIO AUTOPLAY-->
-<audio id="bgMusic" loop>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop preload="auto">
   <source src="royalty.mp3" type="audio/mpeg">
 </audio>
 
-<script>
-// Trigger audio setelah user interaksi pertama
-let played = false;
-function startAudio(){
-  if(!played){
-    const audio = document.getElementById('bgMusic');
-    audio.volume = 0.2; // volume 20%
-    audio.play();
-    played = true;
-  }
-}
+<!-- TAP -->
+<div id="tapToStart">Tap untuk memulai</div>
 
-// Bisa klik atau scroll
-document.body.addEventListener('click', startAudio);
-document.body.addEventListener('touchstart', startAudio);
-document.body.addEventListener('scroll', startAudio);
-</script>
+<!-- RAIN -->
 <canvas id="rain"></canvas>
 
 <!-- INTRO -->
 <div id="intro">
-  <video src="intro.mp4" autoplay muted playsinline></video>
+  <video id="introVideo" muted playsinline preload="auto">
+    <source src="intro.mp4" type="video/mp4">
+  </video>
+
   <div id="introText">
     Semua terlihat terkendali<br>
     sampai satu keputusan salah
@@ -196,10 +197,8 @@ document.body.addEventListener('scroll', startAudio);
 
   <h1>Ini Bukan Akhir<br><span>Ini Grafik yang Dihentikan</span></h1>
   <div class="subtitle">Pause adalah bentuk disiplin</div>
-
   <div class="loss">- Rp 87.000.000</div>
 
-  <!-- GALERI -->
   <div class="gallery-wrap">
     <div class="gallery">
       <img src="img/pic1.jpeg">
@@ -256,52 +255,42 @@ document.body.addEventListener('scroll', startAudio);
       <img src="img/pic53.jpeg">
       <img src="img/pic54.jpeg">
       <img src="img/pic55.jpeg">
-      
-
     </div>
   </div>
-  <!-- TESTIMONIAL CARD SIMPLE -->
-<div class="testimonial-card">
-  <p class="quote">
+
+  <div class="testimonial-card">
     "Bang, kekalahan ini cuma langkah kecil.  
     Yang penting tetap bangkit dan belajar."
-  </p>
-  <p class="author">— Moses Syaputrah</p>
+    <div class="author">— Moses Syaputrah</div>
+  </div>
+
+  <footer>Dibuat untuk mengingat, bukan mengulang</footer>
 </div>
 
-<style>
-.testimonial-card{
-  background:#0a0a0a;
-  border-left:3px solid #ff5c5c;
-  border-radius:10px;
-  max-width:500px;
-  margin:40px auto;
-  padding:20px 25px;
-  color:#e6e6e6;
-  font-size:clamp(14px,2vw,16px);
-  line-height:1.6;
-}
-
-.testimonial-card .author{
-  text-align:right;
-  font-size:clamp(12px,1.8vw,14px);
-  color:#888;
-  margin-top:10px;
-}
-</style>
-
-  <footer>
-    Dibuat untuk mengingat, bukan mengulang
-  </footer>
-  <div class="credit">by. ferdian</div>
-</div>
-
-
+<!-- SCRIPT -->
 <script>
-/* ===== RAIN EFFECT ===== */
+/* tap logic */
+const tap = document.getElementById("tapToStart");
+const audio = document.getElementById("bgMusic");
+const video = document.getElementById("introVideo");
+const intro = document.getElementById("intro");
+
+audio.volume = 0.2;
+
+tap.addEventListener("click", () => {
+  audio.play();
+  video.play();
+  tap.style.display = "none";
+
+  setTimeout(()=>{
+    intro.style.opacity = "0";
+    intro.style.pointerEvents = "none";
+  },6000);
+});
+
+/* rain */
 const canvas=document.getElementById("rain");
 const ctx=canvas.getContext("2d");
-
 function resize(){
   canvas.width=innerWidth;
   canvas.height=innerHeight;
@@ -311,30 +300,25 @@ addEventListener("resize",resize);
 
 const symbols=["↓","↘","↙","-","1","0"];
 const drops=[];
-for(let i=0;i<130;i++){
+for(let i=0;i<120;i++){
   drops.push({
     x:Math.random()*canvas.width,
     y:Math.random()*canvas.height,
-    speed:1+Math.random()*3,
-    char:symbols[Math.floor(Math.random()*symbols.length)],
-    size:12+Math.random()*8
+    s:1+Math.random()*3,
+    c:symbols[Math.floor(Math.random()*symbols.length)],
+    z:12+Math.random()*8
   });
 }
 
 function draw(){
-  ctx.fillStyle="rgba(5,5,5,0.18)";
+  ctx.fillStyle="rgba(5,5,5,.18)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="rgba(255,80,80,0.55)";
-  ctx.textAlign="center";
-
+  ctx.fillStyle="rgba(255,80,80,.55)";
   drops.forEach(d=>{
-    ctx.font=d.size+"px monospace";
-    ctx.fillText(d.char,d.x,d.y);
-    d.y+=d.speed;
-    if(d.y>canvas.height){
-      d.y=-20;
-      d.x=Math.random()*canvas.width;
-    }
+    ctx.font=d.z+"px monospace";
+    ctx.fillText(d.c,d.x,d.y);
+    d.y+=d.s;
+    if(d.y>canvas.height){d.y=-20;d.x=Math.random()*canvas.width}
   });
   requestAnimationFrame(draw);
 }
@@ -342,6 +326,4 @@ draw();
 </script>
 
 </body>
-
 </html>
-
